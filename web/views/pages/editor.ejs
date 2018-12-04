@@ -1,0 +1,237 @@
+<head>
+</head>
+<body>
+	<input type="file" name="file" id="file">
+	<canvas id="scene" width="1024" height="1024"></canvas>
+	<img src="./assets/images/pics.png">
+</body>
+<script>
+	class Collection extends Array {
+		first() {
+			return this[0];
+		}
+
+		last() {
+			return this[this.length - 1];
+		}
+	}
+	class Level {
+		constructor() {
+			this.tiles = new Collection();
+			this.links = new Collection();
+			this.signs = new Collection();
+			this.chest = new Collection();
+			this.npcs = new Collection();
+			this.baddies = new Collection();
+		}
+	}
+	class Link {
+		constructor(sourceX, sourceY, width, height, targetX, targetY, targetName) {
+			if (arguments.length < 7) {
+				throw new Error('Missing arguments');
+			}
+
+			this.sourceX = sourceX;
+			this.sourceY = sourceY;
+			this.width = width;
+			this.height = height;
+			this.targetX = targetX;
+			this.targetY = targetY;
+			this.targetName = targetName;
+		}
+	}
+	class Npc {
+		constructor(x, y, imageName='-', text='') {
+			this.x = x;
+			this.y = y;
+			this.imageName = imageName;
+			this.text = text;
+		}
+	}
+	class Sign {
+		constructor(x, y, text='') {
+			if (arguments.length < 2) {
+				throw new Error('Missing arguments');
+			}
+
+			this.x = x;
+			this.y = y;
+			this.text = text;
+		}
+	}
+	class Tile {
+		constructor(x, y, layer, chars) {
+			if (arguments.length < 4) {
+				throw new Error('Missing arguments');
+			}
+
+			this.x = x;
+			this.y = y;
+			this.layer = layer;
+			this.chars = chars;
+		}
+
+		get tileIndex() {
+			let base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+			return base64.indexOf(this.chars[0]) * 64 + base64.indexOf(this.chars[1]);
+		}
+
+		get tilesetCoords() {
+			let tile = this.tileIndex;
+			return [((tile % 16) * 16) + (Math.floor(tile / 512) * 256), (Math.floor(tile / 16) * 16) % 512];
+		}
+
+		get tilesetX() {
+			return this.tilesetCoords[0];
+		}
+
+		get tilesetY() {
+			return this.tilesetCoords[1];
+		}
+	}
+	class Baddy {
+		constructor(x, y, type, attackVerse, hurtVerse, winVerse) {
+			this.x = x;
+			this.y = y;
+			this.type = type;
+			this.attackVerse = attackVerse;
+			this.hurtVerse = hurtVerse;
+			this.winVerse = winVerse;
+		}
+	}
+	function loadLevel(file) {
+		return new Promise((resolve, reject) => {
+			var reader = new FileReader();
+			reader.onload = function(progressEvent) {
+				var level     = new Level();
+				var firstLine = false;
+				var reading   = '';
+				var contents  = '';
+				var bCount    = 0; // Only used for baddies
+				var bInfo     = []; // Only used for baddies
+				var lines = this.result.split('\n');
+
+				for(var c = 0; c < lines.length; c++) {
+					let line = lines[c];
+
+					// Check level signature
+					if (!firstLine) {
+						firstLine = true;
+					}
+
+					// Check if reading for data
+					else if (reading) {
+						if (line.startsWith(reading)) {
+							if (reading === 'SIGNEND') {
+								level.signs.last().text = contents.trim();
+							} else if (reading === 'NPCEND') {
+								level.npcs.last().text = contents.trim();
+							} else if (reading === 'BADDYEND') {
+								let baddy         = level.baddies.last();
+								baddy.attackVerse = bInfo[0];
+								baddy.hurtVerse   = bInfo[1];
+								baddy.winVerse    = bInfo[2];
+
+								bCount = 0;
+								bInfo  = [];
+							}
+
+							contents = '';
+							reading  = false;
+						} else {
+							if (reading === 'BADDYEND') {
+								bInfo.push(line);
+								bCount++;
+							} else {
+								contents += `${line}\n`;
+							}
+						}
+					}
+
+					// Read tile data
+					else if (line.startsWith('BOARD')) {
+						let [dataType, startX, startY, width, layerIndex, tilesData] = line.split(' ');
+
+						for (let i = 0; i < width * 2; i += 2) {
+							let tileX = startX + i / 2;
+							level.tiles.push(new Tile(tileX, startY, layerIndex, tilesData.substr(i, 2)));
+						}
+					}
+
+					// Links
+					else if (line.startsWith('LINK')) {
+						let [dataType, targetLevel, sourceX, sourceY, width, height, targetX, targetY] = line.split(' ');
+
+						level.links.push(new Link(sourceX, sourceY, width, height, targetX, targetY, targetLevel));
+					}
+
+					// Chest
+					else if (line.startsWith('CHEST')) {
+						let [dataType, x, y, item, signIndex] = line.split(' ');
+
+						level.chest.push(new Chest(x, y, item, signIndex));
+					}
+
+					// Sign
+					else if (line.startsWith('SIGN')) {
+						let [dataType, x, y] = line.split(' ');
+
+						level.signs.push(new Sign(x, y));
+						reading = 'SIGNEND';
+					}
+
+					// NPCs
+					else if (line.startsWith('NPC')) {
+						let [dataType, imageName, x, y] = line.split(' ');
+
+						level.npcs.push(new Npc(x, y, imageName, ''));
+						reading = 'NPCEND';
+					}
+
+					// Baddies
+					else if (line.startsWith('BADDY')) {
+						let [dataType, x, y, type] = line.split(' ');
+
+						level.baddies.push(new Baddy(x, y, type));
+						reading = 'BADDYEND';
+					}
+				}
+				resolve(level);
+			};
+
+			reader.readAsText(file);
+		});
+	}
+
+	function displayLevel(level) {
+		var canvas = document.getElementById('scene');
+		var ctx = canvas.getContext('2d');
+
+		var image = new Image();
+		image.src = './assets/images/pics.png';
+
+		//ctx.drawImage(image, 0, 0, 32, 16, 0, 0, 16, 16);
+
+		for (let t of level.tiles) {
+			ctx.drawImage(image,
+				t.tilesetX, t.tilesetY, 16, 16,
+				t.x, t.y, 16, 16
+			);
+		}
+	}
+
+	window.onload = function() {
+		document.getElementById('file').onchange = function(){
+			var file = this.files[0];
+
+			loadLevel(file)
+			.then(level => {
+				displayLevel(level);
+			})
+			.catch(err => {
+				console.log(`Couldn't load: ${err}`);
+			});
+		};
+	};
+</script>
+</html>

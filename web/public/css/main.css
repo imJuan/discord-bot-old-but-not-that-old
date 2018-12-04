@@ -1,0 +1,115 @@
+/*
+- Created by Juan
+--------------------------------------------------
+	Table of content
+- General
+- Typography
+- Header & Navigation
+- Media
+- Footer
+- Media Queries
+--------------------------------------------------
+	Colors used
+- Dark BG 		#191919 (Not so black... but black)
+- Background 	#FFFAFA (Snow)
+- Dark font 	#333333 (Grey but more of a black)
+- Light font 	#7D7D7D (Greyish)
+- White font 	#ffffff (Just white...)
+-------------------------------------------------- */
+
+/* General
+-------------------------------------------------- */
+* { padding: 0; margin: 0; }
+a { all: unset; cursor: pointer; }
+li { list-style: none; }
+html, body { height: 100%; }
+body {
+	background-color: #FFFAFA;
+	display: flex;
+	flex-direction: column;
+}
+main {
+	display: flex;
+	flex-direction: column;
+	flex: 1 0 auto;
+}
+/* Typography
+-------------------------------------------------- */
+body {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: normal;
+	font-size: medium;
+	color: #333333;
+}
+#header-logo h1, .header-list li {
+	font-family: 'Montserrat', sans-serif;
+	font-weight: 300;
+	color: #FFFAFA;
+	font-size: 1.125em;
+}
+#header-logo h1 {
+	font-size: 1.5em;
+}
+#footer h2 {
+	font-size: 1.5em;
+	color: #333333;
+	text-align: center;
+}
+/* Header & Navigation
+-------------------------------------------------- */
+header {
+	height: 3em;
+	width: 100%;
+	background-color: #191919;
+}
+#header {
+	width: 1000px;
+	margin: 0 auto;
+	box-sizing: border-box;
+	line-height: 3em;
+}
+#header-logo {
+	display: inline;
+}
+#header-logo h1 {
+	display: inline;
+}
+#header-logo a {
+	padding: 8px;
+}
+#header-nav {
+	float: right;
+}
+.header-list li {
+	display: inline-block;
+	float: left;
+	list-style: none;
+}
+.header-list li a {
+	padding: 11px;
+}
+/* Media
+-------------------------------------------------- */
+img {
+	width: 100%;
+}
+/* Footer
+-------------------------------------------------- */
+footer {
+	height: 2em;
+	width: 100%;
+	background-color: #191919;
+}
+#footer {
+	width: 1000px;
+	margin: 0 auto;
+	box-sizing: border-box;
+	line-height: 2em;
+}
+/* Media Queries
+-------------------------------------------------- */
+@media screen and (max-width: 1000px) {
+	#header, #footer {
+		width: 100%;
+	}
+}

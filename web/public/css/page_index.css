@@ -1,0 +1,45 @@
+.intro {
+	width: 100%;
+	height: 200px;
+}
+.into h1 {
+    display: flex;
+    flex: 1 0 auto;
+    background-color: #000000;
+}
+.card-holder {
+	display: flex;
+	flex: 1 0 auto;
+	flex-wrap: wrap;
+	align-items: center;
+	width: 1000px;
+	margin: 0 auto;
+}
+.card {
+	flex: 1 0 0;
+	box-sizing: border-box;
+	padding: 10px;
+	margin: 10px;
+	border: 2px solid #E6E1E1;
+	border-radius: 5px;
+}
+.card h1 {
+	font-weight: normal;
+	font-size: 2em;
+	border-bottom: 2px solid #E6E1E1;
+	margin-bottom: 10px;
+}
+.card li {
+	font-size: 1.25em;
+	font-family: 'Montserrat', sans-serif;
+}
+@media screen and (max-width: 1000px ) {
+	.card-holder {
+		width: 100%;
+		display: inline-block;
+		box-sizing: border-box;
+	}
+	.card {
+		margin: 25px;
+	}
+}

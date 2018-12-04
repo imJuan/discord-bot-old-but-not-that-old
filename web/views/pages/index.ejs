@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!--<meta name="apple-itunes-app" content="app-id=985746746">-->
+	<%- include('../partials/head.ejs') %>
+</head>
+
+<body>
+	<%- include('../partials/header.ejs') %>
+	<main>
+		<section class="intro">
+			<div class="btn"><a>Add Me!</a></div>
+		</section>
+		<section class="card-holder">
+			<div class="card">
+				<h1><a href="/stats">Stats</a></h1>
+				<ul>
+					<li><%= bot.guilds.size %> guilds</li>
+					<li><%= bot.channels.size %> channels</li>
+					<li><%= bot.users.size %> users</li>
+				</ul>
+			</div>
+			<div class="card">
+				<h1><a href="/commands">Commands</a></h1>
+				<ul>
+					<li>Music</li>
+					<li>Moderation</li>
+					<li>Other crap</li>
+				</ul>
+			</div>
+			<div class="card">
+				<h1><a href="/console">Console</a></h1>
+				<ul>
+					<li>Manage commands</li>
+					<li>View guilds</li>
+					<li>idk what else</li>
+				</ul>
+			</div>
+		</section>
+	</main>
+	<%- include('../partials/footer.ejs') %>
+</body>
+</html>
